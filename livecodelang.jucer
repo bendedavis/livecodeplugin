@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="Dpd3LC" name="livecodelang" projectType="audioplug" jucerVersion="5.4.5"
+<JUCERPROJECT id="Dpd3LC" name="livecodelang" projectType="audioplug" jucerVersion="5.4.7"
               pluginCharacteristicsValue="pluginProducesMidiOut,pluginWantsMidiIn"
               pluginName="CodeSeq" pluginDesc="CodeSeq" pluginManufacturer="BenDavis.IO"
               aaxIdentifier="com.bendavisio.codeseq" companyName="BenDavis.IO">

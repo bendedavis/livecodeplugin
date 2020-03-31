@@ -86,8 +86,8 @@ private:
                 commandName=t;
             length++;
         }
-        std::string lowBuffer[length-1];
-        std::string highBuffer[length-1];
+        std::string *lowBuffer = new std::string[length-1];
+        std::string *highBuffer = new std::string[length-1];
         int iter=0;
         for (auto t : tokens)
         {
@@ -110,6 +110,8 @@ private:
         }
         
         execCommand(commandName, length-1, lowBuffer, highBuffer);
+        delete []lowBuffer;
+        delete []highBuffer;
     }
     
     inline void execCommand(std::string commandName, int length, std::string* lowBuff, std::string* highBuff)
