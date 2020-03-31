@@ -8,7 +8,7 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.livecodelang</string>
+    <string>com.BenDavis_IO.livecodelang</string>
     <key>CFBundleName</key>
     <string>livecodelang</string>
     <key>CFBundleDisplayName</key>
@@ -29,9 +29,9 @@
     <array>
       <dict>
         <key>name</key>
-        <string>yourcompany: livecodelang</string>
+        <string>BenDavis.IO: CodeSeq</string>
         <key>description</key>
-        <string>livecodelang</string>
+        <string>CodeSeq</string>
         <key>factoryFunction</key>
         <string>livecodelangAUFactory</string>
         <key>manufacturer</key>

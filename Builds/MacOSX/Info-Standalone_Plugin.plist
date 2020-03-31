@@ -8,7 +8,7 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.livecodelang</string>
+    <string>com.BenDavis_IO.livecodelang</string>
     <key>CFBundleName</key>
     <string>livecodelang</string>
     <key>CFBundleDisplayName</key>
