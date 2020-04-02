@@ -31,7 +31,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     LivecodelangAudioProcessor& processor;
-    TextButton* openButton = new TextButton;
+    int shiftHeld=0;
+    TextButton* evalButton = new TextButton;
     TextButton* resetButton = new TextButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessorEditor)

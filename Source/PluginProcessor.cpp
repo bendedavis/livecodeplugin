@@ -132,52 +132,52 @@ bool LivecodelangAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    if(myFile.exists())
+    std::stringstream stream(codeString);
+    std::string fullLine;
+    while(getline(stream,fullLine))
     {
-        std::ifstream f(myFile.getFullPathName().toStdString().c_str());
-        std::string fullLine;
-        while(getline(f,fullLine))
+        if(fullLine.find('>')<fullLine.length())
         {
-            if(fullLine.find('>')<fullLine.length())
-            {
-                parseChannelNum(fullLine.substr(0,fullLine.find(">")));
-                
-                unsigned long posRet = fullLine.find(">");
-                
-                std::string commands = fullLine.substr(posRet+1);
-                
-                std::regex re(":");
-                std::sregex_token_iterator first{commands.begin(), commands.end(), re, -1}, last;
-                std::vector<std::string> tokens{first, last};
-                for (auto t : tokens) {
-                    processCommands(t);
-                }
+            parseChannelNum(fullLine.substr(0,fullLine.find(">")));
+            
+            unsigned long posRet = fullLine.find(">");
+            
+            std::string commands = fullLine.substr(posRet+1);
+            
+            std::regex re(":");
+            std::sregex_token_iterator first{commands.begin(), commands.end(), re, -1}, last;
+            std::vector<std::string> tokens{first, last};
+            for (auto t : tokens) {
+                processCommands(t);
             }
-            else
-            {
-                processCommands(fullLine);
-            }
+        }
+        else
+        {
+            processCommands(fullLine);
         }
     }
     AudioPlayHead* playHead = getPlayHead();
     if(playHead)
     {
-    AudioPlayHead::CurrentPositionInfo currentPositionInfo;
-    playHead->getCurrentPosition(currentPositionInfo);
-    for(int i=0;i<buffer.getNumSamples();i++)
-    {
-        float sampleRate = getSampleRate();
-        float bpm = currentPositionInfo.bpm;
-        double countInSeconds=runningTime/sampleRate;
-        double countInMilliseconds = countInSeconds*1000.0f;
-        double currentCount=countInMilliseconds/(15000.0f / bpm);
-        for(int x=0;x<32;x++)
+        AudioPlayHead::CurrentPositionInfo currentPositionInfo;
+        playHead->getCurrentPosition(currentPositionInfo);
+        for(int i=0;i<buffer.getNumSamples();i++)
         {
-            seqChannel[x].transport=currentPositionInfo.isPlaying;
-            seqChannel[x].update(currentCount, midiMessages, i);
+            float sampleRate = getSampleRate();
+            float bpm = currentPositionInfo.bpm;
+            double countInSeconds=runningTime/sampleRate;
+            double countInMilliseconds = countInSeconds*1000.0f;
+            double currentCount=countInMilliseconds/(15000.0f / bpm);
+            for(int x=0;x<32;x++)
+            {
+                if(seqChannel[x].active==1)
+                {
+                    seqChannel[x].transport=currentPositionInfo.isPlaying;
+                    seqChannel[x].update(currentCount, midiMessages, i);
+                }
+            }
+            runningTime=currentPositionInfo.timeInSamples+i;
         }
-        runningTime=currentPositionInfo.timeInSamples+i;
-    }
     }
 }
 
@@ -198,10 +198,15 @@ void LivecodelangAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    MemoryOutputStream stream(destData, false);
+    stream.writeText(codeString, true, true, "\n");
 }
 
 void LivecodelangAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    codeString=String::createStringFromData(data, sizeInBytes).toStdString();
+        textEd->setText(codeString);
+    
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }

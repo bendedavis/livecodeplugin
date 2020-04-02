@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "fstream"
+#include <sstream>
 #include <string>
 #include <regex>
 #include <iostream>
@@ -59,7 +59,7 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-     File myFile;
+    std::string codeString;
     inline void resetAll()
     {
         for(int i=0;i<32;i++)
@@ -67,6 +67,10 @@ public:
             seqChannel[i].reset();
         }
     }
+    
+    TextEditor* textEd = new TextEditor;
+    int UIHeight=600;
+    int UIWidth=800;
 
 private:
     
@@ -132,16 +136,16 @@ private:
         {
             for(int i=0;i<seqChannel[activeChannel].seqLength;i++)
             {
-                seqChannel[activeChannel].velocity.lowValue[i%length]=std::stoi(lowBuff[i%length]);
-                seqChannel[activeChannel].velocity.highValue[i%length]=std::stoi(highBuff[i%length]);
+                seqChannel[activeChannel].velocity.lowValue[i]=std::stoi(lowBuff[i%length]);
+                seqChannel[activeChannel].velocity.highValue[i]=std::stoi(highBuff[i%length]);
             }
         }
         else if (commandName == "repeat")
         {
             for(int i=0;i<seqChannel[activeChannel].seqLength;i++)
             {
-                seqChannel[activeChannel].repeat.lowValue[i%length]=std::stoi(lowBuff[i%length]);
-                seqChannel[activeChannel].repeat.highValue[i%length]=std::stoi(highBuff[i%length]);
+                seqChannel[activeChannel].repeat.lowValue[i]=std::stoi(lowBuff[i%length]);
+                seqChannel[activeChannel].repeat.highValue[i]=std::stoi(highBuff[i%length]);
             }
         }
         else if(commandName == "note" || commandName == "notes")
@@ -182,6 +186,10 @@ private:
         {
             seqChannel[activeChannel].divide=std::stof(lowBuff[0]);
         }
+        else if(commandName == "shift")
+        {
+            seqChannel[activeChannel].shift=stof(lowBuff[0]);
+        }
     }
     
     inline void parseChannelNum(std::string channelID)
@@ -198,7 +206,8 @@ private:
         std::string activeChannelString;
         activeChannelString = channelID.substr(1);
         activeChannel = std::stoi(activeChannelString)-1;
-        
+        seqChannel[activeChannel].reset();
+        seqChannel[activeChannel].active=1;
         seqChannel[activeChannel].type=receivedType;
     }
     
@@ -349,7 +358,7 @@ private:
         float followPhase = 0;
         unsigned long hitCount = 0;
         float outPhase = 0;
-        uint8_t active = 1;
+        uint8_t active = 0;
         float shift = 0.0;
         float prob[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         uint8_t seqLength = 16;

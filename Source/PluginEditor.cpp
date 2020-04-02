@@ -17,13 +17,18 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    addAndMakeVisible(openButton);
-    openButton->setButtonText("open");
-    openButton->addListener(this);
+    addAndMakeVisible(evalButton);
     addAndMakeVisible(resetButton);
     resetButton->setButtonText("reset");
     resetButton->addListener(this);
-    setSize (200, 100);
+    evalButton->setButtonText("evaluate");
+    evalButton->addListener(this);
+    addAndMakeVisible(processor.textEd);
+    processor.textEd->setWantsKeyboardFocus(true);
+    processor.textEd->setMultiLine(true);
+    processor.textEd->setReturnKeyStartsNewLine(true);
+    setResizable(true, true);
+    setSize (processor.UIWidth, processor.UIHeight);
 }
 
 LivecodelangAudioProcessorEditor::~LivecodelangAudioProcessorEditor()
@@ -44,23 +49,27 @@ void LivecodelangAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    openButton->setBounds(0,0,200,20);
-    resetButton->setBounds(0,50,200,20);
+    processor.UIHeight=getHeight();
+    processor.UIWidth=getWidth();
+#define buttonHeight 30
+    int newHeight = getHeight();
+    int newWidth = getWidth();
+    
+    
+    evalButton->setBounds(0, newHeight-buttonHeight, newWidth, buttonHeight);
+    resetButton->setBounds(0, newHeight-(buttonHeight*2), newWidth, buttonHeight);
+    processor.textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2));
+
 }
 
 void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
 {
-    if(button==openButton)
-    {
-        FileChooser myChooser("choose file");
-        
-        if (myChooser.browseForFileToOpen())
-        {
-            processor.myFile = myChooser.getResult();
-        }
-    }
     if(button==resetButton)
     {
             processor.resetAll();
+    }
+    if(button==evalButton)
+    {
+        processor.codeString=processor.textEd->getText().toStdString();
     }
 }

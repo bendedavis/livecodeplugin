@@ -1,1 +1,3 @@
-Builds/*
+Builds/
+JuceLibraryCode/
+.DS_Store
