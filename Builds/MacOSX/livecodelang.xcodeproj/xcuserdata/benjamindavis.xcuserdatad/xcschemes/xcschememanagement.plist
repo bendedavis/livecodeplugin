@@ -7,12 +7,12 @@
 		<key>livecodelang - AU.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>2</integer>
 		</dict>
 		<key>livecodelang - All.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>0</integer>
 		</dict>
 		<key>livecodelang - Shared Code.xcscheme_^#shared#^_</key>
 		<dict>
@@ -22,17 +22,17 @@
 		<key>livecodelang - Standalone Plugin.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>3</integer>
 		</dict>
 		<key>livecodelang - VST3.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>23B83D0A014AF674BDE94276</key>
+		<key>1B5073B1C2BDC3217384CF7D</key>
 		<dict>
 			<key>primary</key>
 			<true/>

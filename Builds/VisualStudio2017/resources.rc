@@ -13,7 +13,7 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "CompanyName",  "BenDavis.IO\0"
+      VALUE "CompanyName",  "bendavisIO\0"
       VALUE "FileDescription",  "livecodelang\0"
       VALUE "FileVersion",  "1.0.0\0"
       VALUE "ProductName",  "livecodelang\0"
