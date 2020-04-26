@@ -23,12 +23,12 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     resetButton->addListener(this);
     evalButton->setButtonText("evaluate");
     evalButton->addListener(this);
-    addAndMakeVisible(processor.textEd);
-    processor.textEd->setWantsKeyboardFocus(true);
-    processor.textEd->setMultiLine(true);
-    processor.textEd->setReturnKeyStartsNewLine(true);
-    setResizable(true, true);
-    setSize (processor.UIWidth, processor.UIHeight);
+    addAndMakeVisible(textEd);
+    textEd->setWantsKeyboardFocus(true);
+    textEd->setReturnKeyStartsNewLine(true);
+    textEd->addListener(this);
+    textEd->setMultiLine(true);
+    setSize (800, 600);
 }
 
 LivecodelangAudioProcessorEditor::~LivecodelangAudioProcessorEditor()
@@ -39,6 +39,12 @@ LivecodelangAudioProcessorEditor::~LivecodelangAudioProcessorEditor()
 void LivecodelangAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
+    if(processor.UIChanged==1)
+    {
+        textEd->setText(processor.codeString);
+        processor.UIChanged=0;
+    }
+    
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
 
     g.setColour (Colours::white);
@@ -49,16 +55,12 @@ void LivecodelangAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    processor.UIHeight=getHeight();
-    processor.UIWidth=getWidth();
 #define buttonHeight 30
-    int newHeight = getHeight();
-    int newWidth = getWidth();
-    
+   
     
     evalButton->setBounds(0, newHeight-buttonHeight, newWidth, buttonHeight);
     resetButton->setBounds(0, newHeight-(buttonHeight*2), newWidth, buttonHeight);
-    processor.textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2));
+    textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2));
 
 }
 
@@ -66,10 +68,11 @@ void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
 {
     if(button==resetButton)
     {
-            processor.resetAll();
+        processor.resetAll();
     }
     if(button==evalButton)
     {
-        processor.codeString=processor.textEd->getText().toStdString();
+        processor.codeString=textEd->getText().toStdString();
+        processor.makeSeq();
     }
 }

@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>livecodelang</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.BenDavis_IO.livecodelang</string>
+	<string>com.bendavisIO.livecodelang</string>
 	<key>CFBundleName</key>
 	<string>livecodelang</string>
 	<key>CFBundlePackageType</key>

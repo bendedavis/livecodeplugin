@@ -24,7 +24,8 @@ LivecodelangAudioProcessor::LivecodelangAudioProcessor()
                   )
 #endif
 {
-    
+    UIWidth=800;
+    UIHeight=600;
 }
 
 LivecodelangAudioProcessor::~LivecodelangAudioProcessor()
@@ -132,51 +133,52 @@ bool LivecodelangAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    std::stringstream stream(codeString);
-    std::string fullLine;
-    while(getline(stream,fullLine))
-    {
-        if(fullLine.find('>')<fullLine.length())
-        {
-            parseChannelNum(fullLine.substr(0,fullLine.find(">")));
-            
-            unsigned long posRet = fullLine.find(">");
-            
-            std::string commands = fullLine.substr(posRet+1);
-            
-            std::regex re(":");
-            std::sregex_token_iterator first{commands.begin(), commands.end(), re, -1}, last;
-            std::vector<std::string> tokens{first, last};
-            for (auto t : tokens) {
-                processCommands(t);
-            }
-        }
-        else
-        {
-            processCommands(fullLine);
-        }
-    }
     AudioPlayHead* playHead = getPlayHead();
+    numEvents = myClip.getNumEvents();
     if(playHead)
     {
         AudioPlayHead::CurrentPositionInfo currentPositionInfo;
         playHead->getCurrentPosition(currentPositionInfo);
+        double sampleRate = getSampleRate();
+        double bpm = currentPositionInfo.bpm;
+        auto startSample = currentPositionInfo.timeInSamples;
         for(int i=0;i<buffer.getNumSamples();i++)
         {
-            float sampleRate = getSampleRate();
-            float bpm = currentPositionInfo.bpm;
-            double countInSeconds=runningTime/sampleRate;
-            double countInMilliseconds = countInSeconds*1000.0f;
-            double currentCount=countInMilliseconds/(15000.0f / bpm);
-            for(int x=0;x<32;x++)
+            if(queueReset)
             {
-                if(seqChannel[x].active==1)
+                for(int q=0;q<lastClip.getNumEvents();q++)
                 {
-                    seqChannel[x].transport=currentPositionInfo.isPlaying;
-                    seqChannel[x].update(currentCount, midiMessages, i);
+                    MidiMessage thisMessage = lastClip.getEventPointer(q)->message;
+                    if(thisMessage.isNoteOff())
+                    {
+                        midiMessages.addEvent(thisMessage, i);
+                    }
+                }
+                queueReset=0;
+            }
+            if((currentPositionInfo.isPlaying)&&(numEvents>0))
+            {
+                lastRunningTime=runningTime;
+                runningTime=startSample+i;
+                
+                lastCount = currentCount;
+                currentCount = samplesToCount(runningTime, sampleRate, bpm);
+                lastLoopedCount=loopedCount;
+                loopedCount=wrap(currentCount,masterLength);
+                if(loopedCount<lastLoopedCount)
+                {
+                    eventsPlayed=0;
+                }
+                if(eventsPlayed<numEvents)
+                {
+                    auto eventTime = myClip.getEventPointer(eventsPlayed)->message.getTimeStamp();
+                    if(loopedCount>=eventTime)
+                    {
+                        midiMessages.addEvent(myClip.getEventPointer(eventsPlayed)->message, i);
+                        eventsPlayed++;
+                    }
                 }
             }
-            runningTime=currentPositionInfo.timeInSamples+i;
         }
     }
 }
@@ -198,15 +200,22 @@ void LivecodelangAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    MemoryOutputStream stream(destData, false);
-    stream.writeText(codeString, true, true, "\n");
+    ValueTree preset("Preset");
+    preset.setProperty("CodeString", codeString, nullptr);
+    std::unique_ptr<XmlElement> presetData = preset.createXml();
+    copyXmlToBinary(*presetData, destData);
 }
 
 void LivecodelangAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    codeString=String::createStringFromData(data, sizeInBytes).toStdString();
-        textEd->setText(codeString);
     
+    auto xml = getXmlFromBinary(data, sizeInBytes);
+    if(xml!=nullptr)
+    {
+        auto tree = ValueTree::fromXml(*xml);
+        codeString=tree.getProperty("CodeString");
+        UIChanged=1;
+    }
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }

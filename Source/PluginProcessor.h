@@ -1,12 +1,12 @@
 /*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
+ ==============================================================================
+ 
+ This file was auto-generated!
+ 
+ It contains the basic framework code for a JUCE plugin processor.
+ 
+ ==============================================================================
+ */
 
 #pragma once
 
@@ -15,66 +15,171 @@
 #include <string>
 #include <regex>
 #include <iostream>
+#include "lua-src/lua.hpp"
 
 //==============================================================================
 /**
-*/
+ */
 class LivecodelangAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
     LivecodelangAudioProcessor();
     ~LivecodelangAudioProcessor();
-
+    
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
-
-   #ifndef JucePlugin_PreferredChannelConfigurations
+    
+#ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
-
+#endif
+    
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
-
+    
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
-
+    
     //==============================================================================
     const String getName() const override;
-
+    
     bool acceptsMidi() const override;
     bool producesMidi() const override;
     bool isMidiEffect() const override;
     double getTailLengthSeconds() const override;
-
+    
     //==============================================================================
     int getNumPrograms() override;
     int getCurrentProgram() override;
     void setCurrentProgram (int index) override;
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
-
+    
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    std::string codeString;
-    inline void resetAll()
+    int UIChanged=0;
+    String codeString="";
+    
+    int UIHeight;
+    int UIWidth;
+    
+    void resetAll()
     {
-        for(int i=0;i<32;i++)
-        {
-            seqChannel[i].reset();
-        }
     }
     
-    TextEditor* textEd = new TextEditor;
-    int UIHeight=600;
-    int UIWidth=800;
-
+    void makeSeq()
+    {
+        lastClip=myClip;
+        queueReset=1;
+        myClip.clear();
+        lua_State *L = luaL_newstate();
+        luaL_openlibs(L);
+        luaL_dofile(L, "/Users/benjamindavis/Documents/codeSeq.lua");
+        std::stringstream stream(codeString.toStdString());
+        std::string fullLine;
+        std::string channelCommand[32];
+        int exists[32];
+        int channelToWrite;
+        std::string channelType[32];
+        for(int i=0;i<32;i++)
+        {
+            paramStor[i].clear();
+            channelCommand[i]="";
+            exists[i]=0;
+        }
+        while(getline(stream,fullLine))
+        {
+            if(fullLine.find('$')<fullLine.length())
+            {
+                channelToWrite = std::stoi(fullLine.substr(1,fullLine.find('$')))-1;
+                exists[channelToWrite]=1;
+                channelType[channelToWrite]=fullLine.at(0);
+                channelCommand[channelToWrite]=fullLine.substr(fullLine.find('$')+1);
+            }
+        }
+        for(int i=0;i<32;i++)
+        {
+            if(exists[i])
+            {
+                std::regex re(":");
+                std::sregex_token_iterator first{channelCommand[i].begin(), channelCommand[i].end(), re, -1}, last;
+                std::vector<std::string> tokens{first, last};
+                for (auto t : tokens) {
+                    processCommands(t,i);
+                }
+                
+                int gateStep = 0;
+                int lastGateStep = 0;
+                int noteStep = 0;
+                if(paramStor[i].gateLength>0&&paramStor[i].noteLength>0)
+                {
+                    auto channelDivide = luaEval(paramStor[i].divide,L);
+                    auto channelMultiply = luaEval(paramStor[i].multiply,L);
+                    auto channelTiming = channelMultiply/channelDivide;
+                    for(int step=0;step<(masterLength*16)*channelTiming;step++)
+                    {
+                        lastGateStep=gateStep;
+                        gateStep=step%paramStor[i].gateLength;
+                        if(gateStep<lastGateStep)
+                        {
+                            noteStep=0;
+                        }
+                        if(luaEval(paramStor[i].prob[gateStep], L)>=randomRange(0, 1))
+                        {
+                            auto currentNoteLength = paramStor[i].noteLength;
+                            auto lowNote =paramStor[i].notes[noteStep%currentNoteLength];
+                            auto highNote =paramStor[i].randNotes[noteStep%currentNoteLength];
+                            float finalNote;
+                            if(lowNote!=highNote)
+                            {
+                                finalNote=randomRange(luaEval(lowNote,L),luaEval(highNote,L));
+                            }
+                            else
+                            {
+                                finalNote=luaEval(lowNote,L);
+                            }
+                            float lowVel=1;
+                            float highVel=1;
+                            int lowRep=1;
+                            int highRep=1;
+                            float finalShift=0;
+                            if(paramStor[i].velocity!=nullptr)
+                            lowVel = luaEval(paramStor[i].velocity[gateStep],L);
+                            if(paramStor[i].randVelocity!=nullptr)
+                            highVel = luaEval(paramStor[i].randVelocity[gateStep],L);
+                            auto finalVel = randomRange(lowVel, highVel);
+                            finalShift=luaEval(paramStor[i].shift,L);
+                            auto firstNote = ((float)step+finalShift)/((16.0f)*channelTiming);
+                            auto nextNote = (((float)step+finalShift)+1)/((16.0f)*channelTiming);
+                            if(paramStor[i].repeat!=nullptr)
+                            lowRep = luaEval(paramStor[i].repeat[gateStep],L);
+                            if(paramStor[i].randRepeat!=nullptr)
+                            highRep = luaEval(paramStor[i].randRepeat[gateStep],L);
+                            int finalRepeat = randomRange(lowRep,highRep);
+                            auto eachTiming = (nextNote-firstNote)/(float)finalRepeat;
+                            if(finalRepeat>=1)
+                            {
+                                for(int rep=0;rep<finalRepeat;rep++)
+                                {
+                                    makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)*0.9f, myClip);
+                                }
+                            }
+                            noteStep++;
+                        }
+                    }
+                }
+            }
+        }
+        myClip.sort();
+        lua_close(L);
+    }
+    
 private:
     
-    inline void processCommands(std::string input)
+    inline void processCommands(std::string input, int channelNum)
     {
         std::string commandName;
         int length=0;
@@ -112,342 +217,167 @@ private:
             }
             iter++;
         }
-        
-        execCommand(commandName, length-1, lowBuffer, highBuffer);
+        execCommand(commandName, length-1, lowBuffer, highBuffer, channelNum);
         delete []lowBuffer;
         delete []highBuffer;
     }
     
-    inline void execCommand(std::string commandName, int length, std::string* lowBuff, std::string* highBuff)
+    inline void makeNote(float note, float velocity, float start, float duration, MidiMessageSequence &mySeq)
     {
-        if(commandName == "midi")
+        if(note>=0&&note<128)
         {
-            seqChannel[activeChannel].midiChan = std::stoi(lowBuff[0]);
+            if((note-(unsigned long)note)>0.5f)
+               note = std::ceil(note);
+            else
+               note = std::floor(note);
+            auto onEvent = MidiMessage::noteOn(1, note, velocity);
+            auto offEvent = MidiMessage::noteOff(1, note, velocity);
+            mySeq.addEvent(onEvent,start);
+            mySeq.addEvent(offEvent,start+duration);
         }
-        else if(commandName == "prob")
+    }
+    
+    inline float luaEval(std::string inputMessage, lua_State * currentState)
+    {
+        std::string luaMessage = "result_x11245=" + inputMessage;
+        luaL_dostring(currentState, luaMessage.c_str());
+        lua_getglobal(currentState, "result_x11245");
+        return(lua_tonumber(currentState, -1));
+    }
+    
+    inline float randomRange(float in1, float in2)
+    {
+        float randomFloat = (rand()%10000)/9999.0f;
+        float randomReturn = (in1*randomFloat)+(in2*(1.0f-randomFloat));
+        return(randomReturn);
+    }
+    
+    inline void execCommand(std::string commandName, int length, std::string* lowBuff, std::string* highBuff, int channelNum)
+    {
+        if(commandName == "prob")
         {
+            paramStor[channelNum].prob = new std::string[length];
+            paramStor[channelNum].gateLength=length;
             for(int i=0;i<length;i++)
             {
-                seqChannel[activeChannel].prob[i]=std::stof(lowBuff[i]);
+                paramStor[channelNum].prob[i]=lowBuff[i];
             }
-             seqChannel[activeChannel].seqLength=length;
         }
         else if (commandName == "velocity")
         {
-            for(int i=0;i<seqChannel[activeChannel].seqLength;i++)
+            int sequenceLength = paramStor[channelNum].gateLength;
+            paramStor[channelNum].velocity = new std::string[sequenceLength];
+            paramStor[channelNum].randVelocity = new std::string[sequenceLength];
+            for(int i=0;i<sequenceLength;i++)
             {
-                seqChannel[activeChannel].velocity.lowValue[i]=std::stoi(lowBuff[i%length]);
-                seqChannel[activeChannel].velocity.highValue[i]=std::stoi(highBuff[i%length]);
+                paramStor[channelNum].velocity[i]=lowBuff[i%length];
+                paramStor[channelNum].randVelocity[i]=highBuff[i%length];
             }
         }
-        else if (commandName == "repeat")
+        else if (commandName == "repeat" || commandName == "repeats")
         {
-            for(int i=0;i<seqChannel[activeChannel].seqLength;i++)
+            int sequenceLength = paramStor[channelNum].gateLength;
+            paramStor[channelNum].repeat = new std::string[sequenceLength];
+            paramStor[channelNum].randRepeat = new std::string[sequenceLength];
+            for(int i=0;i<sequenceLength;i++)
             {
-                seqChannel[activeChannel].repeat.lowValue[i]=std::stoi(lowBuff[i%length]);
-                seqChannel[activeChannel].repeat.highValue[i]=std::stoi(highBuff[i%length]);
+                paramStor[channelNum].repeat[i]=lowBuff[i%length];
+                paramStor[channelNum].randRepeat[i]=highBuff[i%length];
             }
         }
         else if(commandName == "note" || commandName == "notes")
         {
+            paramStor[channelNum].notes = new std::string[length];
+            paramStor[channelNum].randNotes = new std::string[length];
+            paramStor[channelNum].noteLength=length;
             for(int i=0;i<length;i++)
             {
-                seqChannel[activeChannel].note.lowValue[i]=std::stoi(lowBuff[i]);
-                seqChannel[activeChannel].note.highValue[i]=std::stoi(highBuff[i]);
+                paramStor[channelNum].notes[i]=lowBuff[i];
+                paramStor[channelNum].randNotes[i]=highBuff[i];
             }
-            seqChannel[activeChannel].noteLength=length;
         }
         else if(commandName == "scale")
         {
-            uint16_t finalScale=0;
-            int currentBit;
-            for(int i=0;i<12;i++)
-            {
-            if(lowBuff[i]=="1")
-            {
-                currentBit=1;
-            }
-            else
-            {
-                currentBit=0;
-            }
-            finalScale+=currentBit<<i;
-            }
-            for(int i=0;i<32;i++)
-            {
-                seqChannel[i].scale=finalScale;
-            }
+            
         }
         else if(commandName == "multiply")
         {
-            seqChannel[activeChannel].multiply=std::stof(lowBuff[0]);
+            paramStor[channelNum].multiply=lowBuff[0];
         }
         else if(commandName == "divide")
         {
-            seqChannel[activeChannel].divide=std::stof(lowBuff[0]);
+            paramStor[channelNum].divide=lowBuff[0];
         }
         else if(commandName == "shift")
         {
-            seqChannel[activeChannel].shift=stof(lowBuff[0]);
+            paramStor[channelNum].shift=lowBuff[0];
         }
     }
     
-    inline void parseChannelNum(std::string channelID)
+    double inline samplesToCount (int64_t sampleCount, double sr, double bpm)
     {
-        char cType;
-        int receivedType=0;
-        cType = channelID.at(0);
-        if(cType == 'd')
-            receivedType=0;
-        else
-        {
-            receivedType=1;
-        }
-        std::string activeChannelString;
-        activeChannelString = channelID.substr(1);
-        activeChannel = std::stoi(activeChannelString)-1;
-        seqChannel[activeChannel].reset();
-        seqChannel[activeChannel].active=1;
-        seqChannel[activeChannel].type=receivedType;
+        double countInSeconds=(double)sampleCount/sr;
+        double countInMilliseconds = countInSeconds*1000.0f;
+        double beatCount=countInMilliseconds/(240000.0f / bpm);
+        
+        return(beatCount);
     }
     
-    static inline float interp(float in1, float in2, float x)
+    double wrap(double in, int mod)
     {
-        return ((1.0f - x) * in1 + in2 * x);
+        double output=0;
+        int64_t wholeNum = in;
+        wholeNum%=mod;
+        double frac=in-(int64_t)in;
+        output=wholeNum+frac;
+        return (output);
     }
     
-    static inline void sendNoteOn(int channel, int note, uint8_t velocity, MidiBuffer& midiBuff, int currentSample)
+    class ParamStor
     {
-        auto noteOnMess = MidiMessage::noteOn(channel, note, velocity);
-        midiBuff.addEvent(noteOnMess,currentSample);
-    }
-    
-    static inline void sendNoteOff(int channel, int note, uint8_t velocity, MidiBuffer& midiBuff, int currentSample)
-    {
-        auto noteOffMess = MidiMessage::noteOff(channel,note,velocity);
-        midiBuff.addEvent(noteOffMess,currentSample);
-    }
-    
-    class RandomValue
-    {
-    private:
-        float finalValue[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        unsigned long indexCount = 0;
-        int numRandom=1;
-        float evolve = 1.0f;
     public:
-        uint8_t lowValue[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        uint8_t highValue[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        
-        void updateValues(uint8_t index)
+        std::string *prob;
+        int gateLength;
+        std::string *repeat;
+        std::string *randRepeat;
+        std::string *notes;
+        std::string *randNotes;
+        int noteLength;
+        std::string *velocity;
+        std::string *randVelocity;
+        std::string multiply;
+        std::string divide;
+        std::string shift;
+        void clear()
         {
-            if (indexCount >= numRandom)
-            {
-                if (lowValue[index] == highValue[index])
-                {
-                    finalValue[index] = highValue[index];
-                }
-                else
-                {
-                    float randomIndex;
-                    randomIndex = (rand() % 4096) / 4095.0f;
-                    finalValue[index] += (interp(lowValue[index], highValue[index], randomIndex)   - finalValue[index]) * evolve;
-                    if (finalValue[index] < lowValue[index])
-                        finalValue[index] = lowValue[index];
-                    else if (finalValue[index] > highValue[index])
-                        finalValue[index] = highValue[index];
-                }
-            }
-            if (index == 0)
-            {
-                if (indexCount >= numRandom)
-                    indexCount = 0;
-                indexCount++;
-            }
-        }
-        
-        uint8_t getValue(int index)
-        {
-            if ((finalValue[index] - (int)finalValue[index]) < 0.5)
-            {
-                return (floor(finalValue[index]));
-            }
-            else
-                return (ceil(finalValue[index]));
+            prob = nullptr;
+            gateLength=0;
+            repeat=nullptr;
+            randRepeat=nullptr;
+            notes=nullptr;
+            randNotes=nullptr;
+            noteLength=0;
+            velocity=nullptr;
+            randVelocity=nullptr;
+            multiply="1";
+            divide="1";
+            shift="0";
         }
     };
     
-    class SeqChannel
-    {
-    private:
-        uint8_t noteStatus = 0;
-        uint8_t lastStatus = 1;
-        uint8_t currentStep = 0;
-        uint8_t lastStep = 0;
-        RandomValue compareVal;
-        uint8_t thisNote = 0;
-        float phase = 0;
-        float currentCount = 0;
-        int lastVelocity = 0;
-        float lastCount = 0;
-        int lastNote = 0;
-        int currentNote = 0;
-        uint8_t lastMidiChan = 18;
-        float finalRepeats = 1;
-        int noteStep = 0;
-        int lastNoteStep = 0;
-        
-        int quantize(int inNote, uint16_t scaleIn)
-        {
-            int diffs[12] = {13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13};
-            int smallestDiff = 50;
-            
-            for (int i = 0; i < 12; i++)
-            {
-                if (((scaleIn >> i) & 1) == 1)
-                {
-                    diffs[i] = (inNote % 12) - i;
-                }
-            }
-            
-            int whichOne = 20;
-            
-            for (int i = 0; i < 12; i++)
-            {
-                if (abs(diffs[i]) < smallestDiff)
-                    whichOne = i;
-                smallestDiff = std::min(abs(diffs[i]), smallestDiff);
-            }
-            
-            if (scaleIn == 0)
-                return (inNote);
-            else
-                return (inNote - diffs[whichOne]);
-        }
-    public:
-        SeqChannel()
-        {
-            reset();
-        }
-        void reset()
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                velocity.lowValue[i] = 127;
-                velocity.highValue[i] = 127;
-                
-                repeat.lowValue[i] = 1;
-                repeat.highValue[i] = 1;
-            }
-            for (int i = 0; i < 16; i++)
-            {
-                prob[i] = 0;
-                pw[i] = 0.5f;
-            }
-            shift = 0;
-            divide = 1;
-            multiply = 1;
-            follow = 0;
-        }
-        int transport=0;
-        uint8_t type = 0;
-        uint8_t midiChan = 1;
-        uint16_t scale = 0;
-        uint8_t follow = 0;
-        uint8_t chanFollow = 0;
-        float followPhase = 0;
-        unsigned long hitCount = 0;
-        float outPhase = 0;
-        uint8_t active = 0;
-        float shift = 0.0;
-        float prob[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        uint8_t seqLength = 16;
-        uint8_t noteLength = 16;
-        uint8_t vLength;
-        RandomValue note;
-        float pw[16] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-        float multiply = 1.0f;
-        float divide = 1.0f;
-        RandomValue repeat;
-        RandomValue velocity;
-        void update(float rt, MidiBuffer& midiBuff, int currentSample)
-        {
-            float postMultiply;
-            if (follow == 0)
-            {
-                rt += shift;
-                lastCount = currentCount;
-                currentCount = (rt * multiply / divide);
-                lastStep = currentStep;
-                currentStep = (unsigned long)currentCount % seqLength;
-                if (repeat.lowValue[currentStep] < 1)
-                    repeat.lowValue[currentStep] = 1;
-                if ((unsigned long)currentCount != (unsigned long)lastCount)
-                {
-                    if (currentStep == 0)
-                        hitCount = 0;
-                    noteStep = hitCount % noteLength;
-                    note.updateValues(noteStep);
-                    compareVal.lowValue[currentStep] = 0;
-                    compareVal.highValue[currentStep] = 255;
-                    compareVal.updateValues(currentStep);
-                    repeat.updateValues(currentStep);
-                    velocity.updateValues(currentStep);
-                    finalRepeats = repeat.getValue(currentStep);
-                }
-                postMultiply = float(multiply / divide) * finalRepeats;
-            }
-            else
-            {
-                lastCount = currentCount;
-                currentCount = (int)followPhase;
-                currentStep = (int)followPhase % seqLength;
-                postMultiply = repeat.getValue(currentStep);
-            }
-            if (follow == 0)
-            {
-                phase = (rt * postMultiply) - (int)(rt * postMultiply);
-                if (phase > 1.0)
-                    phase -= 1.0f;
-            }
-            else
-            {
-                phase = (followPhase * postMultiply) - (int)(followPhase * postMultiply);
-            }
-            lastStatus = noteStatus;
-            if (phase < pw[currentStep])
-            {
-                noteStatus = 1 * active;
-            }
-            else
-                noteStatus = 0;
-            if ((prob[currentStep] * 256.0f) > compareVal.getValue(currentStep))
-            {
-                outPhase = hitCount;
-                if ((noteStatus > lastStatus)&&transport)
-                {
-                    thisNote = note.getValue(noteStep);
-                    hitCount++;
-                    if (type == 1)
-                    {
-                        thisNote = quantize(thisNote, scale);
-                    }
-                    sendNoteOn(midiChan, thisNote, velocity.getValue(currentStep), midiBuff, currentSample);
-                    lastMidiChan = midiChan;
-                    lastNote = thisNote;
-                    lastVelocity = velocity.getValue(currentStep);
-                }
-                else if (noteStatus < lastStatus)
-                {
-                    sendNoteOn(lastMidiChan, lastNote, 0, midiBuff, currentSample);
-                }
-            }
-        }
-    };
-    
-    SeqChannel seqChannel[32];
-    int activeChannel = 0;
+    int queueReset=0;
+    ParamStor paramStor[32];
+    MidiMessageSequence lastClip;
+    MidiMessageSequence myClip;
     int64_t runningTime;
+    int64_t lastRunningTime;
+    double lastCount;
+    double currentCount;
+    uint16_t numEvents;
+    double loopedCount;
+    double lastLoopedCount;
+    uint16_t masterLength=8;
+    uint16_t eventsPlayed;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessor)
 };

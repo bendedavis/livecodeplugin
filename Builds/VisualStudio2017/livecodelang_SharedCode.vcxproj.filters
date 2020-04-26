@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="livecodelang\Source\lua-src">
+      <UniqueIdentifier>{E2E1C813-A698-7550-D399-68488CC2EAAA}</UniqueIdentifier>
+    </Filter>
     <Filter Include="livecodelang\Source">
       <UniqueIdentifier>{F80C5B0D-E078-764E-628B-D6039A00C4D6}</UniqueIdentifier>
     </Filter>
@@ -414,6 +417,111 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\PluginEditor.cpp">
       <Filter>livecodelang\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lapi.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lauxlib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lbaselib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lbitlib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lcode.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lcorolib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lctype.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ldblib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ldebug.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ldo.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ldump.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lfunc.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lgc.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\linit.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\liolib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\llex.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lmathlib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lmem.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\loadlib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lobject.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lopcodes.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\loslib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lparser.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lstate.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lstring.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lstrlib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ltable.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ltablib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\ltm.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lua.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\luac.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lundump.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lutf8lib.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lvm.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\lua-src\lzio.c">
+      <Filter>livecodelang\Source\lua-src</Filter>
     </ClCompile>
     <ClCompile Include="C:\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <Filter>JUCE Modules\juce_audio_basics\buffers</Filter>
@@ -2305,6 +2413,9 @@
     <ClCompile Include="C:\JUCE\modules\juce_gui_extra\juce_gui_extra.mm">
       <Filter>JUCE Modules\juce_gui_extra</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -2348,6 +2459,84 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\PluginEditor.h">
       <Filter>livecodelang\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lapi.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lauxlib.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lcode.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lctype.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\ldebug.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\ldo.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lfunc.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lgc.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\llex.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\llimits.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lmem.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lobject.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lopcodes.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lparser.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lprefix.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lstate.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lstring.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\ltable.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\ltm.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lua.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lua.hpp">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\luaconf.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lualib.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lundump.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lvm.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\lua-src\lzio.h">
+      <Filter>livecodelang\Source\lua-src</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>
@@ -4458,11 +4647,131 @@
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
       <Filter>JUCE Library Code</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">
+      <Filter>JUCE Library Code</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>JUCE Library Code</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Source\lua-src\lapi.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lauxlib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lbaselib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lbitlib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lcode.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lcorolib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lctype.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ldblib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ldebug.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ldo.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ldump.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lfunc.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lgc.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\liblua.a">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\linit.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\liolib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\llex.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lmathlib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lmem.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\loadlib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lobject.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lopcodes.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\loslib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lparser.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lstate.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lstring.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lstrlib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ltable.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ltablib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\ltm.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lua">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lua.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\luac">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\luac.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lundump.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lutf8lib.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lvm.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\lzio.o">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
+    <None Include="..\..\Source\lua-src\Makefile">
+      <Filter>livecodelang\Source\lua-src</Filter>
+    </None>
     <None Include="C:\JUCE\modules\juce_audio_formats\codecs\flac\Flac Licence.txt">
       <Filter>JUCE Modules\juce_audio_formats\codecs\flac</Filter>
     </None>
