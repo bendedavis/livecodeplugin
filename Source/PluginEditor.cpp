@@ -18,10 +18,10 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     addAndMakeVisible(evalButton);
-    addAndMakeVisible(resetButton);
-    resetButton->setButtonText("reset");
-    resetButton->addListener(this);
-    evalButton->setButtonText("evaluate");
+    addAndMakeVisible(fileButton);
+    fileButton->setButtonText("Load Script");
+    fileButton->addListener(this);
+    evalButton->setButtonText("Evaluate");
     evalButton->addListener(this);
     addAndMakeVisible(textEd);
     textEd->setWantsKeyboardFocus(true);
@@ -59,16 +59,22 @@ void LivecodelangAudioProcessorEditor::resized()
    
     
     evalButton->setBounds(0, newHeight-buttonHeight, newWidth, buttonHeight);
-    resetButton->setBounds(0, newHeight-(buttonHeight*2), newWidth, buttonHeight);
+    fileButton->setBounds(0, newHeight-(buttonHeight*2), newWidth, buttonHeight);
     textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2));
+    textEd->setText(processor.codeString);
 
 }
 
 void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
 {
-    if(button==resetButton)
+    if(button==fileButton)
     {
-        processor.resetAll();
+        FileChooser myChooser ("Please select a Lua script...");
+        
+        if (myChooser.browseForFileToOpen())
+        {
+            processor.extLuaScript = myChooser.getResult();
+        }
     }
     if(button==evalButton)
     {

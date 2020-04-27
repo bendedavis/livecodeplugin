@@ -2460,6 +2460,9 @@
     <ClInclude Include="..\..\Source\PluginEditor.h">
       <Filter>livecodelang\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\luaCommands.h">
+      <Filter>livecodelang\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\lua-src\lapi.h">
       <Filter>livecodelang\Source\lua-src</Filter>
     </ClInclude>

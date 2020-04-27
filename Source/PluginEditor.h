@@ -35,7 +35,7 @@ private:
     // access the processor object that created it.
     LivecodelangAudioProcessor& processor;
     TextButton* evalButton = new TextButton;
-    TextButton* resetButton = new TextButton;
+    TextButton* fileButton = new TextButton;
     TextEditor* textEd = new TextEditor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessorEditor)

@@ -16,6 +16,7 @@
 #include <regex>
 #include <iostream>
 #include "lua-src/lua.hpp"
+#include "luaCommands.h"
 
 //==============================================================================
 /**
@@ -62,13 +63,10 @@ public:
     
     int UIChanged=0;
     String codeString="";
+    File extLuaScript;
     
     int UIHeight;
     int UIWidth;
-    
-    void resetAll()
-    {
-    }
     
     void makeSeq()
     {
@@ -77,7 +75,16 @@ public:
         myClip.clear();
         lua_State *L = luaL_newstate();
         luaL_openlibs(L);
-        luaL_dofile(L, "/Users/benjamindavis/Documents/codeSeq.lua");
+        std::string luaTxtString = "";
+        int commandFound=0;
+        luaL_dostring(L, luaCommandString.c_str());
+        if(extLuaScript.exists())
+        {
+            String luaFileName = extLuaScript.getFullPathName();
+            luaL_dofile(L, luaFileName.toStdString().c_str());
+        }
+        std::string masterLengthSend = "masterLength = " + std::to_string(masterLength);
+        luaL_dostring(L, masterLengthSend.c_str());
         std::stringstream stream(codeString.toStdString());
         std::string fullLine;
         std::string channelCommand[32];
@@ -94,10 +101,20 @@ public:
         {
             if(fullLine.find('$')<fullLine.length())
             {
+                if(commandFound==0)
+                {
+                    luaL_dostring(L, luaTxtString.c_str());
+                    commandFound=1;
+                }
                 channelToWrite = std::stoi(fullLine.substr(1,fullLine.find('$')))-1;
                 exists[channelToWrite]=1;
                 channelType[channelToWrite]=fullLine.at(0);
                 channelCommand[channelToWrite]=fullLine.substr(fullLine.find('$')+1);
+            }
+            else
+            {
+                if(commandFound==0)
+                luaTxtString+=fullLine + "\n";
             }
         }
         for(int i=0;i<32;i++)
@@ -119,8 +136,14 @@ public:
                     auto channelDivide = luaEval(paramStor[i].divide,L);
                     auto channelMultiply = luaEval(paramStor[i].multiply,L);
                     auto channelTiming = channelMultiply/channelDivide;
-                    for(int step=0;step<(masterLength*16)*channelTiming;step++)
+                    masterLength= luaEval("masterLength",L);
+                    DBG(masterLength);
+                    auto totalLength = (masterLength*16)*channelTiming;
+                    for(int step=0;step<totalLength;step++)
                     {
+                        auto currentTiming = step*1.0f/totalLength;
+                        std::string timingString = "currentTime= " + std::to_string(currentTiming);
+                        luaL_dostring(L, timingString.c_str());
                         lastGateStep=gateStep;
                         gateStep=step%paramStor[i].gateLength;
                         if(gateStep<lastGateStep)
@@ -132,7 +155,7 @@ public:
                             auto currentNoteLength = paramStor[i].noteLength;
                             auto lowNote =paramStor[i].notes[noteStep%currentNoteLength];
                             auto highNote =paramStor[i].randNotes[noteStep%currentNoteLength];
-                            float finalNote;
+                            double finalNote;
                             if(lowNote!=highNote)
                             {
                                 finalNote=randomRange(luaEval(lowNote,L),luaEval(highNote,L));
@@ -141,6 +164,7 @@ public:
                             {
                                 finalNote=luaEval(lowNote,L);
                             }
+                            
                             float lowVel=1;
                             float highVel=1;
                             int lowRep=1;
@@ -164,7 +188,14 @@ public:
                             {
                                 for(int rep=0;rep<finalRepeat;rep++)
                                 {
-                                    makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)*0.9f, myClip);
+                                    if(channelType[i]=="n"&&paramStor[i].scale!="")
+                                    {
+                                      
+                                        std::string quantizeMessage = "quantize(" + std::to_string(finalNote) + "," + paramStor[i].scale +")";
+                                        finalNote=luaEval(quantizeMessage.c_str(),L);
+                                       
+                                    }
+                                    makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip, masterLength);
                                 }
                             }
                             noteStep++;
@@ -222,7 +253,7 @@ private:
         delete []highBuffer;
     }
     
-    inline void makeNote(float note, float velocity, float start, float duration, MidiMessageSequence &mySeq)
+    inline void makeNote(float note, float velocity, float start, float duration, MidiMessageSequence &mySeq, int maxLength)
     {
         if(note>=0&&note<128)
         {
@@ -233,7 +264,15 @@ private:
             auto onEvent = MidiMessage::noteOn(1, note, velocity);
             auto offEvent = MidiMessage::noteOff(1, note, velocity);
             mySeq.addEvent(onEvent,start);
-            mySeq.addEvent(offEvent,start+duration);
+            auto endPosition = start+duration;
+            if(endPosition<maxLength)
+            {
+                mySeq.addEvent(offEvent,endPosition);
+            }
+            else
+            {
+                mySeq.addEvent(offEvent,maxLength-0.1f);
+            }
         }
     }
     
@@ -296,10 +335,6 @@ private:
                 paramStor[channelNum].randNotes[i]=highBuff[i];
             }
         }
-        else if(commandName == "scale")
-        {
-            
-        }
         else if(commandName == "multiply")
         {
             paramStor[channelNum].multiply=lowBuff[0];
@@ -311,6 +346,10 @@ private:
         else if(commandName == "shift")
         {
             paramStor[channelNum].shift=lowBuff[0];
+        }
+        else if(commandName == "quantize")
+        {
+            paramStor[channelNum].scale=lowBuff[0];
         }
     }
     
@@ -348,6 +387,7 @@ private:
         std::string multiply;
         std::string divide;
         std::string shift;
+        std::string scale;
         void clear()
         {
             prob = nullptr;
@@ -362,6 +402,7 @@ private:
             multiply="1";
             divide="1";
             shift="0";
+            scale="";
         }
     };
     
@@ -376,7 +417,7 @@ private:
     uint16_t numEvents;
     double loopedCount;
     double lastLoopedCount;
-    uint16_t masterLength=8;
+    uint16_t masterLength=1;
     uint16_t eventsPlayed;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessor)

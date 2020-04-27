@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginEditor.cpp"
-            timestampString = "609623001.523562"
+            timestampString = "609694186.5253561"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "56"
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginEditor.cpp"
-            timestampString = "609623001.524164"
+            timestampString = "609694186.525484"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "58"
@@ -42,7 +42,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.cpp"
-            timestampString = "609623001.524614"
+            timestampString = "609694186.525591"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "229"
@@ -56,7 +56,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.cpp"
-            timestampString = "609623001.524714"
+            timestampString = "609694186.525694"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "217"
@@ -72,7 +72,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.cpp"
-            timestampString = "609623001.5248049"
+            timestampString = "609694186.525791"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "218"
@@ -88,13 +88,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.h"
-            timestampString = "609623001.5248981"
+            timestampString = "609694186.525896"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "315"
-            endingLineNumber = "315"
-            landmarkName = "LivecodelangAudioProcessor"
-            landmarkType = "3">
+            startingLineNumber = "354"
+            endingLineNumber = "354"
+            landmarkName = "execCommand(std::string commandName, int length, std::string* lowBuff, std::string* highBuff, int channelNum)"
+            landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
@@ -136,7 +136,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.cpp"
-            timestampString = "609623001.524999"
+            timestampString = "609694186.5266809"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "169"
@@ -152,7 +152,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.cpp"
-            timestampString = "609623001.52509"
+            timestampString = "609694186.5267839"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "141"
@@ -168,12 +168,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Source/PluginProcessor.cpp"
-            timestampString = "609623001.525184"
+            timestampString = "609694186.526884"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "178"
             endingLineNumber = "178"
             landmarkName = "LivecodelangAudioProcessor::processBlock (AudioBuffer&lt;float&gt;&amp; buffer, MidiBuffer&amp; midiMessages)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Source/PluginProcessor.h"
+            timestampString = "609694186.526984"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "139"
+            endingLineNumber = "139"
+            landmarkName = "makeSeq()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

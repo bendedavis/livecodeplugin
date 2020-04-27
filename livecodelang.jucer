@@ -4,7 +4,8 @@
               pluginCharacteristicsValue="pluginEditorRequiresKeys,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginName="CodeSeq" pluginDesc="CodeSeq" pluginManufacturer="BenDavis.IO"
               aaxIdentifier="com.bendavisio.codeseq" companyName="bendavisIO"
-              pluginFormats="buildAU,buildStandalone,buildVST3" pluginAUMainType="'aumi'">
+              pluginFormats="buildAU,buildStandalone,buildVST3" pluginAUMainType="'aumi'"
+              cppLanguageStandard="17">
   <MAINGROUP id="hvqGsp" name="livecodelang">
     <GROUP id="{8312D8B7-B293-F6AF-5053-3DB2787A4F9D}" name="Source">
       <FILE id="GjgBt5" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -14,6 +15,7 @@
       <FILE id="t2ai9W" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="ZBS2wo" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="maYpZz" name="luaCommands.h" compile="0" resource="0" file="Source/luaCommands.h"/>
       <GROUP id="{CD079CFA-41A0-8432-6B18-DA1790EC752D}" name="lua-src">
         <FILE id="FZ84Ua" name="lapi.c" compile="1" resource="0" file="Source/lua-src/lapi.c"/>
         <FILE id="wjXhKg" name="lapi.h" compile="0" resource="0" file="Source/lua-src/lapi.h"/>
