@@ -68,11 +68,15 @@ public:
     int UIHeight;
     int UIWidth;
     
+    std::string errorString = "";
+
+    
+    int queueNewClip=0;
+        
     void makeSeq()
     {
-        lastClip=myClip;
-        queueReset=1;
-        myClip.clear();
+        errorString="";
+        myClip[!clipSelect].clear();
         lua_State *L = luaL_newstate();
         luaL_openlibs(L);
         std::string luaTxtString = "";
@@ -114,7 +118,13 @@ public:
             else
             {
                 if(commandFound==0)
+                {
                 luaTxtString+=fullLine + "\n";
+                }
+                else
+                {
+                    channelCommand[channelToWrite]+=fullLine;
+                }
             }
         }
         for(int i=0;i<32;i++)
@@ -137,7 +147,6 @@ public:
                     auto channelMultiply = luaEval(paramStor[i].multiply,L);
                     auto channelTiming = channelMultiply/channelDivide;
                     masterLength= luaEval("masterLength",L);
-                    DBG(masterLength);
                     auto totalLength = (masterLength*16)*channelTiming;
                     for(int step=0;step<totalLength;step++)
                     {
@@ -153,49 +162,86 @@ public:
                         if(luaEval(paramStor[i].prob[gateStep], L)>=randomRange(0, 1))
                         {
                             auto currentNoteLength = paramStor[i].noteLength;
-                            auto lowNote =paramStor[i].notes[noteStep%currentNoteLength];
-                            auto highNote =paramStor[i].randNotes[noteStep%currentNoteLength];
-                            double finalNote;
-                            if(lowNote!=highNote)
-                            {
-                                finalNote=randomRange(luaEval(lowNote,L),luaEval(highNote,L));
-                            }
-                            else
-                            {
-                                finalNote=luaEval(lowNote,L);
-                            }
                             
-                            float lowVel=1;
-                            float highVel=1;
-                            int lowRep=1;
-                            int highRep=1;
+                            float finalVel=1.0;
                             float finalShift=0;
                             if(paramStor[i].velocity!=nullptr)
-                            lowVel = luaEval(paramStor[i].velocity[gateStep],L);
-                            if(paramStor[i].randVelocity!=nullptr)
-                            highVel = luaEval(paramStor[i].randVelocity[gateStep],L);
-                            auto finalVel = randomRange(lowVel, highVel);
+                            {
+                                finalVel = luaEval(paramStor[i].velocity[gateStep],L);;
+                            }
                             finalShift=luaEval(paramStor[i].shift,L);
                             auto firstNote = ((float)step+finalShift)/((16.0f)*channelTiming);
                             auto nextNote = (((float)step+finalShift)+1)/((16.0f)*channelTiming);
+                            int finalRepeat = 1;
                             if(paramStor[i].repeat!=nullptr)
-                            lowRep = luaEval(paramStor[i].repeat[gateStep],L);
-                            if(paramStor[i].randRepeat!=nullptr)
-                            highRep = luaEval(paramStor[i].randRepeat[gateStep],L);
-                            int finalRepeat = randomRange(lowRep,highRep);
+                            {
+                                finalRepeat = luaEval(paramStor[i].repeat[gateStep],L);
+                            }
                             auto eachTiming = (nextNote-firstNote)/(float)finalRepeat;
                             if(finalRepeat>=1)
                             {
                                 for(int rep=0;rep<finalRepeat;rep++)
                                 {
-                                    if(channelType[i]=="n"&&paramStor[i].scale!="")
+                                    int polyCount=0;
+                                    auto currentStepString = paramStor[i].notes[noteStep%currentNoteLength];
+                                    std::string noteOrder[128];
+                                    for(int m=0;m<128;m++)
+                                        noteOrder[m]="";
+                                    std::regex re(",");
+                                    std::sregex_token_iterator first{currentStepString.begin(), currentStepString.end(), re, -1}, last;
+                                    std::vector<std::string> tokens{first, last};
+                                    int paranStarted=0;
+                                    for (auto t : tokens)
                                     {
-                                      
-                                        std::string quantizeMessage = "quantize(" + std::to_string(finalNote) + "," + paramStor[i].scale +")";
-                                        finalNote=luaEval(quantizeMessage.c_str(),L);
-                                       
+                                        if(paranStarted==0)
+                                        {
+                                            polyCount++;
+                                        }
+                                        if(t.find("(") < t.length())
+                                            paranStarted++;
+                                        if(t.find(")")<t.length())
+                                        {
+                                            paranStarted--;
+                                        }
+                                        if(paranStarted>0)
+                                        {
+                                            noteOrder[polyCount-1].append(t + ",");
+                                        }
+                                        else
+                                        {
+                                        noteOrder[polyCount-1].append(t);
+                                        }
                                     }
-                                    makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip, masterLength);
+                                    
+                                    if (polyCount==1)
+                                    {
+                                        auto finalNote=luaEval(paramStor[i].notes[noteStep%currentNoteLength],L);
+                                        
+                                        if(channelType[i]=="n"&&paramStor[i].scale!="")
+                                        {
+                                            
+                                            std::string quantizeMessage = "quantize(" + std::to_string(finalNote) + "," + paramStor[i].scale +")";
+                                            finalNote=luaEval(quantizeMessage.c_str(),L);
+                                            
+                                        }
+                                        makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip[!clipSelect], masterLength);
+                                    }
+                                    else
+                                    {
+                                        for(int p=0;p<polyCount;p++)
+                                        {
+                                            auto finalNote = luaEval(noteOrder[p],L);
+                                            
+                                            if(channelType[i]=="n"&&paramStor[i].scale!="")
+                                            {
+                                                
+                                                std::string quantizeMessage = "quantize(" + std::to_string(finalNote) + "," + paramStor[i].scale +")";
+                                                finalNote=luaEval(quantizeMessage.c_str(),L);
+                                                
+                                            }
+                                            makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip[!clipSelect], masterLength);
+                                        }
+                                    }
                                 }
                             }
                             noteStep++;
@@ -204,7 +250,7 @@ public:
                 }
             }
         }
-        myClip.sort();
+        myClip[!clipSelect].sort();
         lua_close(L);
     }
     
@@ -227,30 +273,17 @@ private:
             length++;
         }
         std::string *lowBuffer = new std::string[length-1];
-        std::string *highBuffer = new std::string[length-1];
         int iter=0;
         for (auto t : tokens)
         {
             if(iter>0)
             {
-                if(t.find('~')<t.length())
-                {
-                    unsigned long randPos;
-                    randPos = t.find('~');
-                    lowBuffer[iter-1]=t.substr(0,randPos);
-                    highBuffer[iter-1]=t.substr(randPos+1);
-                }
-                else
-                {
                     lowBuffer[iter-1]= t;
-                    highBuffer[iter-1]= t;
-                }
             }
             iter++;
         }
-        execCommand(commandName, length-1, lowBuffer, highBuffer, channelNum);
+        execCommand(commandName, length-1, lowBuffer, channelNum);
         delete []lowBuffer;
-        delete []highBuffer;
     }
     
     inline void makeNote(float note, float velocity, float start, float duration, MidiMessageSequence &mySeq, int maxLength)
@@ -271,7 +304,7 @@ private:
             }
             else
             {
-                mySeq.addEvent(offEvent,maxLength-0.1f);
+                mySeq.addEvent(offEvent,maxLength-0.01f);
             }
         }
     }
@@ -279,9 +312,15 @@ private:
     inline float luaEval(std::string inputMessage, lua_State * currentState)
     {
         std::string luaMessage = "result_x11245=" + inputMessage;
-        luaL_dostring(currentState, luaMessage.c_str());
+        if(luaL_dostring(currentState, luaMessage.c_str()) == LUA_OK)
+        {
         lua_getglobal(currentState, "result_x11245");
         return(lua_tonumber(currentState, -1));
+        }
+        else
+        {
+            errorString="Evaluation error";
+        }
     }
     
     inline float randomRange(float in1, float in2)
@@ -291,7 +330,7 @@ private:
         return(randomReturn);
     }
     
-    inline void execCommand(std::string commandName, int length, std::string* lowBuff, std::string* highBuff, int channelNum)
+    inline void execCommand(std::string commandName, int length, std::string* lowBuff, int channelNum)
     {
         if(commandName == "prob")
         {
@@ -304,35 +343,29 @@ private:
         }
         else if (commandName == "velocity")
         {
-            int sequenceLength = paramStor[channelNum].gateLength;
+            int sequenceLength = masterLength*16;
             paramStor[channelNum].velocity = new std::string[sequenceLength];
-            paramStor[channelNum].randVelocity = new std::string[sequenceLength];
             for(int i=0;i<sequenceLength;i++)
             {
                 paramStor[channelNum].velocity[i]=lowBuff[i%length];
-                paramStor[channelNum].randVelocity[i]=highBuff[i%length];
             }
         }
         else if (commandName == "repeat" || commandName == "repeats")
         {
-            int sequenceLength = paramStor[channelNum].gateLength;
+            int sequenceLength = masterLength*16;
             paramStor[channelNum].repeat = new std::string[sequenceLength];
-            paramStor[channelNum].randRepeat = new std::string[sequenceLength];
             for(int i=0;i<sequenceLength;i++)
             {
                 paramStor[channelNum].repeat[i]=lowBuff[i%length];
-                paramStor[channelNum].randRepeat[i]=highBuff[i%length];
             }
         }
         else if(commandName == "note" || commandName == "notes")
         {
             paramStor[channelNum].notes = new std::string[length];
-            paramStor[channelNum].randNotes = new std::string[length];
             paramStor[channelNum].noteLength=length;
             for(int i=0;i<length;i++)
             {
                 paramStor[channelNum].notes[i]=lowBuff[i];
-                paramStor[channelNum].randNotes[i]=highBuff[i];
             }
         }
         else if(commandName == "multiply")
@@ -378,12 +411,9 @@ private:
         std::string *prob;
         int gateLength;
         std::string *repeat;
-        std::string *randRepeat;
         std::string *notes;
-        std::string *randNotes;
         int noteLength;
         std::string *velocity;
-        std::string *randVelocity;
         std::string multiply;
         std::string divide;
         std::string shift;
@@ -393,12 +423,9 @@ private:
             prob = nullptr;
             gateLength=0;
             repeat=nullptr;
-            randRepeat=nullptr;
             notes=nullptr;
-            randNotes=nullptr;
             noteLength=0;
             velocity=nullptr;
-            randVelocity=nullptr;
             multiply="1";
             divide="1";
             shift="0";
@@ -408,8 +435,8 @@ private:
     
     int queueReset=0;
     ParamStor paramStor[32];
-    MidiMessageSequence lastClip;
-    MidiMessageSequence myClip;
+    MidiMessageSequence myClip[2];
+    uint8_t clipSelect=0;
     int64_t runningTime;
     int64_t lastRunningTime;
     double lastCount;

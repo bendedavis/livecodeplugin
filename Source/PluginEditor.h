@@ -37,6 +37,7 @@ private:
     TextButton* evalButton = new TextButton;
     TextButton* fileButton = new TextButton;
     TextEditor* textEd = new TextEditor;
+    TextEditor* errorBox = new TextEditor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessorEditor)
 };

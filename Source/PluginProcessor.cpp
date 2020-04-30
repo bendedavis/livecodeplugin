@@ -134,7 +134,6 @@ bool LivecodelangAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     AudioPlayHead* playHead = getPlayHead();
-    numEvents = myClip.getNumEvents();
     if(playHead)
     {
         AudioPlayHead::CurrentPositionInfo currentPositionInfo;
@@ -144,37 +143,31 @@ void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         auto startSample = currentPositionInfo.timeInSamples;
         for(int i=0;i<buffer.getNumSamples();i++)
         {
-            if(queueReset)
+            lastRunningTime=runningTime;
+            runningTime=startSample+i;
+            
+            lastCount = currentCount;
+            currentCount = samplesToCount(runningTime, sampleRate, bpm);
+            lastLoopedCount=loopedCount;
+            loopedCount=wrap(currentCount,masterLength);
+            if(loopedCount<lastLoopedCount)
             {
-                for(int q=0;q<lastClip.getNumEvents();q++)
+                if(queueNewClip)
                 {
-                    MidiMessage thisMessage = lastClip.getEventPointer(q)->message;
-                    if(thisMessage.isNoteOff())
-                    {
-                        midiMessages.addEvent(thisMessage, i);
-                    }
+                    clipSelect=!clipSelect;
+                    queueNewClip=0;
                 }
-                queueReset=0;
+                eventsPlayed=0;
             }
+            numEvents = myClip[clipSelect].getNumEvents();
             if((currentPositionInfo.isPlaying)&&(numEvents>0))
             {
-                lastRunningTime=runningTime;
-                runningTime=startSample+i;
-                
-                lastCount = currentCount;
-                currentCount = samplesToCount(runningTime, sampleRate, bpm);
-                lastLoopedCount=loopedCount;
-                loopedCount=wrap(currentCount,masterLength);
-                if(loopedCount<lastLoopedCount)
-                {
-                    eventsPlayed=0;
-                }
                 if(eventsPlayed<numEvents)
                 {
-                    auto eventTime = myClip.getEventPointer(eventsPlayed)->message.getTimeStamp();
+                    auto eventTime = myClip[clipSelect].getEventPointer(eventsPlayed)->message.getTimeStamp();
                     if(loopedCount>=eventTime)
                     {
-                        midiMessages.addEvent(myClip.getEventPointer(eventsPlayed)->message, i);
+                        midiMessages.addEvent(myClip[clipSelect].getEventPointer(eventsPlayed)->message, i);
                         eventsPlayed++;
                     }
                 }

@@ -28,6 +28,8 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     textEd->setReturnKeyStartsNewLine(true);
     textEd->addListener(this);
     textEd->setMultiLine(true);
+    errorBox->setReadOnly(true);
+    addAndMakeVisible(errorBox);
     setSize (800, 600);
 }
 
@@ -56,13 +58,13 @@ void LivecodelangAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 #define buttonHeight 30
-   
+#define errorHeight 40
     
     evalButton->setBounds(0, newHeight-buttonHeight, newWidth, buttonHeight);
     fileButton->setBounds(0, newHeight-(buttonHeight*2), newWidth, buttonHeight);
-    textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2));
+    textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2)-errorHeight);
+    errorBox->setBounds(0,newHeight-(buttonHeight*2)-errorHeight,newWidth,errorHeight);
     textEd->setText(processor.codeString);
-
 }
 
 void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
@@ -80,5 +82,7 @@ void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
     {
         processor.codeString=textEd->getText().toStdString();
         processor.makeSeq();
+        errorBox->setText(processor.errorString);
+        processor.queueNewClip=1;
     }
 }
