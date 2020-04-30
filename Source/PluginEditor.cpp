@@ -24,9 +24,9 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     evalButton->setButtonText("Evaluate");
     evalButton->addListener(this);
     addAndMakeVisible(textEd);
+    textEd->setColour(0x1000200, defaultBGColor);
     textEd->setWantsKeyboardFocus(true);
     textEd->setReturnKeyStartsNewLine(true);
-    textEd->addListener(this);
     textEd->setMultiLine(true);
     errorBox->setReadOnly(true);
     addAndMakeVisible(errorBox);
@@ -50,6 +50,21 @@ void LivecodelangAudioProcessorEditor::paint (Graphics& g)
     {
         textEd->setText(processor.codeString);
         processor.UIChanged=0;
+    }
+    
+    lastUIState=currentUIState;
+    currentUIState=processor.queueNewClip;
+    
+    if(currentUIState>lastUIState)
+    {
+        textEd->setColour(0x1000200, Colour::fromRGB(66, 61, 102));
+        textEd->repaint();
+    }
+    
+    if(lastUIState>currentUIState)
+    {
+        textEd->setColour(0x1000200, defaultBGColor);
+        textEd->repaint();
     }
     
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
@@ -87,9 +102,6 @@ void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
     }
     if(button==evalButton)
     {
-        processor.codeString=textEd->getText().toStdString();
-        processor.makeSeq();
-        errorBox->setText(processor.errorString);
-        processor.queueNewClip=1;
+        evalCode();
     }
 }
