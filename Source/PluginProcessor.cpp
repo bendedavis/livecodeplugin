@@ -167,8 +167,15 @@ void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
                     auto eventTime = myClip[clipSelect].getEventPointer(eventsPlayed)->message.getTimeStamp();
                     if(loopedCount>=eventTime)
                     {
-                        midiMessages.addEvent(myClip[clipSelect].getEventPointer(eventsPlayed)->message, i);
-                        eventsPlayed++;
+                        for (int numSame = 0 ; numSame < numEvents; numSame++)
+                        {
+                            auto scannedTime = myClip[clipSelect].getEventPointer(numSame)->message.getTimeStamp();
+                            if(scannedTime==eventTime)
+                            {
+                                midiMessages.addEvent(myClip[clipSelect].getEventPointer(eventsPlayed)->message, i);
+                                eventsPlayed++;
+                            }
+                        }
                     }
                 }
             }
