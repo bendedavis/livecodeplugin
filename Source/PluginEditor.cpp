@@ -30,6 +30,11 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     textEd->setMultiLine(true);
     errorBox->setReadOnly(true);
     addAndMakeVisible(errorBox);
+    std::string buildDateString = "Build Date: ";
+    buildDateString.append(__DATE__);
+    buildDate->setText((buildDateString), NotificationType::dontSendNotification);
+    buildDate->setJustificationType(Justification::right);
+    addAndMakeVisible(buildDate);
     setSize (800, 600);
 }
 
@@ -59,11 +64,13 @@ void LivecodelangAudioProcessorEditor::resized()
     // subcomponents in your editor..
 #define buttonHeight 30
 #define errorHeight 40
+#define verHeight 20
     
-    evalButton->setBounds(0, newHeight-buttonHeight, newWidth, buttonHeight);
-    fileButton->setBounds(0, newHeight-(buttonHeight*2), newWidth, buttonHeight);
-    textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2)-errorHeight);
-    errorBox->setBounds(0,newHeight-(buttonHeight*2)-errorHeight,newWidth,errorHeight);
+    evalButton->setBounds(0, newHeight-buttonHeight-verHeight, newWidth, buttonHeight);
+    fileButton->setBounds(0, newHeight-(buttonHeight*2)-verHeight, newWidth, buttonHeight);
+    textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2)-errorHeight-verHeight);
+    errorBox->setBounds(0,newHeight-(buttonHeight*2)-errorHeight-verHeight,newWidth,errorHeight);
+    buildDate->setBounds(0,newHeight-verHeight,newWidth,verHeight);
     textEd->setText(processor.codeString);
 }
 
