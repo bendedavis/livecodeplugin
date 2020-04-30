@@ -68,6 +68,8 @@ public:
     int UIHeight;
     int UIWidth;
     
+    Array<std::string> errorMessages;
+    
     std::string errorString = "";
 
     
@@ -319,7 +321,20 @@ private:
         }
         else
         {
-            errorString="Evaluation error";
+            std::string errorMessageString = lua_tostring(currentState, -1);
+            std::regex re(":");
+            std::sregex_token_iterator first{errorMessageString.begin(), errorMessageString.end(), re, -1}, last;
+            std::vector<std::string> tokens{first, last};
+            int lineIter=0;
+            std::string cleanMessage="";
+            for (auto t : tokens)
+            {
+                if(lineIter==2)
+                    cleanMessage=t;
+                lineIter++;
+            }
+            cleanMessage.append("\n");
+            errorString.append(cleanMessage);
         }
     }
     

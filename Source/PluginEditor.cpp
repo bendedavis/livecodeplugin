@@ -29,6 +29,9 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     textEd->setReturnKeyStartsNewLine(true);
     textEd->setMultiLine(true);
     errorBox->setReadOnly(true);
+    errorBox->setMultiLine(true);
+    errorBox->setScrollbarsShown(true);
+    errorBox->setScrollBarThickness(10);
     addAndMakeVisible(errorBox);
     std::string buildDateString = "Build Date: ";
     buildDateString.append(__DATE__);
@@ -78,7 +81,7 @@ void LivecodelangAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 #define buttonHeight 30
-#define errorHeight 40
+#define errorHeight 60
 #define verHeight 20
     
     evalButton->setBounds(0, newHeight-buttonHeight-verHeight, newWidth, buttonHeight);
