@@ -17,7 +17,7 @@ LivecodelangAudioProcessor::LivecodelangAudioProcessor()
 : AudioProcessor (BusesProperties()
 #if ! JucePlugin_IsMidiEffect
 #if ! JucePlugin_IsSynth
-                  .withInput  ("Input",  AudioChannelSet::stereo(), true)
+                  .withInput  ("Input",  AudioChannelSet::stereo(), false)
 #endif
                   .withOutput ("Output", AudioChannelSet::stereo(), true)
 #endif
@@ -133,48 +133,60 @@ bool LivecodelangAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    buffer.clear();
+    double sampleRate = getSampleRate();
+    int64_t startSample = 0;
+    
     AudioPlayHead* playHead = getPlayHead();
     if(playHead)
     {
         AudioPlayHead::CurrentPositionInfo currentPositionInfo;
         playHead->getCurrentPosition(currentPositionInfo);
-        double sampleRate = getSampleRate();
-        double bpm = currentPositionInfo.bpm;
-        auto startSample = currentPositionInfo.timeInSamples;
-        for(int i=0;i<buffer.getNumSamples();i++)
+        bpm = currentPositionInfo.bpm;
+        startSample = currentPositionInfo.timeInSamples;
+        transport = currentPositionInfo.isPlaying;
+    }
+    for(int i=0;i<buffer.getNumSamples();i++)
+    {
+        lastRunningTime=runningTime;
+        if(playHead)
         {
-            lastRunningTime=runningTime;
             runningTime=startSample+i;
-            
-            lastCount = currentCount;
-            currentCount = samplesToCount(runningTime, sampleRate, bpm);
-            lastLoopedCount=loopedCount;
-            loopedCount=wrap(currentCount,masterLength);
-            if(loopedCount<lastLoopedCount)
+        }
+        else
+        {
+            clockInternal=0;
+            runningTime+=1;
+        }
+        
+        lastCount = currentCount;
+        currentCount = samplesToCount(runningTime, sampleRate, bpm);
+        lastLoopedCount=loopedCount;
+        loopedCount=wrap(currentCount,masterLength);
+        if(loopedCount<lastLoopedCount)
+        {
+            if(queueNewClip)
             {
-                if(queueNewClip)
-                {
-                    clipSelect=!clipSelect;
-                    queueNewClip=0;
-                }
-                eventsPlayed=0;
+                clipSelect=!clipSelect;
+                queueNewClip=0;
             }
-            numEvents = myClip[clipSelect].getNumEvents();
-            if((currentPositionInfo.isPlaying)&&(numEvents>0))
+            eventsPlayed=0;
+        }
+        numEvents = myClip[clipSelect].getNumEvents();
+        if(transport&&(numEvents>0))
+        {
+            if(eventsPlayed<numEvents)
             {
-                if(eventsPlayed<numEvents)
+                auto eventTime = myClip[clipSelect].getEventPointer(eventsPlayed)->message.getTimeStamp();
+                if(loopedCount>=eventTime)
                 {
-                    auto eventTime = myClip[clipSelect].getEventPointer(eventsPlayed)->message.getTimeStamp();
-                    if(loopedCount>=eventTime)
+                    for (int numSame = 0 ; numSame < numEvents; numSame++)
                     {
-                        for (int numSame = 0 ; numSame < numEvents; numSame++)
+                        auto scannedTime = myClip[clipSelect].getEventPointer(numSame)->message.getTimeStamp();
+                        if(scannedTime==eventTime)
                         {
-                            auto scannedTime = myClip[clipSelect].getEventPointer(numSame)->message.getTimeStamp();
-                            if(scannedTime==eventTime)
-                            {
-                                midiMessages.addEvent(myClip[clipSelect].getEventPointer(eventsPlayed)->message, i);
-                                eventsPlayed++;
-                            }
+                            midiMessages.addEvent(myClip[clipSelect].getEventPointer(eventsPlayed)->message, i);
+                            eventsPlayed++;
                         }
                     }
                 }

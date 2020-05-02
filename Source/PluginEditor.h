@@ -46,8 +46,8 @@ public:
         return false;
     }
     
-    int newHeight=600;
-    int newWidth=800;
+    int UIHeight=600;
+    int UIWidth=800;
     
 private:
     // This reference is provided as a quick way for your editor to
@@ -56,12 +56,21 @@ private:
     int lastUIState;
     int currentUIState;
     
+    int currentTransportState=1;
+    int lastTransportState=1;
+    
     LivecodelangAudioProcessor& processor;
     TextButton* evalButton = new TextButton;
     TextButton* fileButton = new TextButton;
     TextEditor* textEd = new TextEditor;
     TextEditor* errorBox = new TextEditor;
     Label* buildDate = new Label;
+    
+    TextButton* playButton = new TextButton;
+    
+    TextEditor* bpmInput = new TextEditor;
+    
+    void showTransport();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessorEditor)
 };

@@ -17,12 +17,14 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    bpmInput->setText("120");
     addAndMakeVisible(evalButton);
     addAndMakeVisible(fileButton);
     fileButton->setButtonText("Load Script");
     fileButton->addListener(this);
     evalButton->setButtonText("Evaluate");
     evalButton->addListener(this);
+    playButton->addListener(this);
     addAndMakeVisible(textEd);
     textEd->setColour(0x1000200, defaultBGColor);
     textEd->setWantsKeyboardFocus(true);
@@ -38,7 +40,17 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     buildDate->setText((buildDateString), NotificationType::dontSendNotification);
     buildDate->setJustificationType(Justification::right);
     addAndMakeVisible(buildDate);
-    setSize (800, 600);
+    playButton->setButtonText("Play");
+    UIHeight=600;
+    UIWidth=800;
+#ifdef IOS_VERSION
+    Rectangle<int> r = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
+    int x = r.getWidth();
+    int y = r.getHeight();
+    UIHeight=y;
+    UIWidth=x;
+#endif
+    setSize (UIWidth, UIHeight);
 }
 
 LivecodelangAudioProcessorEditor::~LivecodelangAudioProcessorEditor()
@@ -49,6 +61,15 @@ LivecodelangAudioProcessorEditor::~LivecodelangAudioProcessorEditor()
 void LivecodelangAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
+    
+    lastTransportState=currentTransportState;
+    currentTransportState=processor.clockInternal;
+    
+    if(currentTransportState<lastTransportState)
+    {
+        showTransport();
+    }
+    
     if(processor.UIChanged==1)
     {
         textEd->setText(processor.codeString);
@@ -83,12 +104,13 @@ void LivecodelangAudioProcessorEditor::resized()
 #define buttonHeight 30
 #define errorHeight 60
 #define verHeight 20
-    
-    evalButton->setBounds(0, newHeight-buttonHeight-verHeight, newWidth, buttonHeight);
-    fileButton->setBounds(0, newHeight-(buttonHeight*2)-verHeight, newWidth, buttonHeight);
-    textEd->setBounds(0, 0, newWidth, newHeight-(buttonHeight*2)-errorHeight-verHeight);
-    errorBox->setBounds(0,newHeight-(buttonHeight*2)-errorHeight-verHeight,newWidth,errorHeight);
-    buildDate->setBounds(0,newHeight-verHeight,newWidth,verHeight);
+    bpmInput->setBounds(120, UIHeight-verHeight, 100, verHeight);
+    playButton->setBounds(0,UIHeight-verHeight,100,verHeight);
+    evalButton->setBounds(0, UIHeight-buttonHeight-verHeight, UIWidth, buttonHeight);
+    fileButton->setBounds(0, UIHeight-(buttonHeight*2)-verHeight, UIWidth, buttonHeight);
+    textEd->setBounds(0, 0, UIWidth, UIHeight-(buttonHeight*2)-errorHeight-verHeight);
+    errorBox->setBounds(0,UIHeight-(buttonHeight*2)-errorHeight-verHeight,UIWidth,errorHeight);
+    buildDate->setBounds(0,UIHeight-verHeight,UIWidth,verHeight);
     textEd->setText(processor.codeString);
 }
 
@@ -107,4 +129,25 @@ void LivecodelangAudioProcessorEditor::buttonClicked(Button *button)
     {
         evalCode();
     }
+    if(button==playButton)
+    {
+        if(processor.transport==0)
+        {
+            processor.bpm=std::stof(bpmInput->getText().toStdString());
+            processor.runningTime=0;
+            processor.transport=1;
+            playButton->setButtonText("Stop");
+        }
+        else
+        {
+            processor.transport=0;
+            playButton->setButtonText("Play");
+        }
+    }
+}
+
+void LivecodelangAudioProcessorEditor::showTransport()
+{
+    addAndMakeVisible(playButton);
+    addAndMakeVisible(bpmInput);
 }

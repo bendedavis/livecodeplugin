@@ -68,10 +68,13 @@ public:
     int UIHeight;
     int UIWidth;
     
-    Array<std::string> errorMessages;
-    
+    int transport=0;
+    int64_t runningTime=0;
+    double bpm = 120;
+        
     std::string errorString = "";
 
+    int clockInternal = 1;
     
     int queueNewClip=0;
         
@@ -452,7 +455,6 @@ private:
     ParamStor paramStor[32];
     MidiMessageSequence myClip[2];
     uint8_t clipSelect=0;
-    int64_t runningTime;
     int64_t lastRunningTime;
     double lastCount;
     double currentCount;
