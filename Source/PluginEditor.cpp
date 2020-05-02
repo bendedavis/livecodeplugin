@@ -101,6 +101,16 @@ void LivecodelangAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    
+    #ifdef IOS_VERSION
+        Rectangle<int> r = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
+        int x = r.getWidth();
+        int y = r.getHeight();
+        UIHeight=y;
+        UIWidth=x;
+    #endif
+        setSize (UIWidth, UIHeight);
+    
 #define buttonHeight 30
 #define errorHeight 60
 #define verHeight 20

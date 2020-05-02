@@ -17,7 +17,7 @@ LivecodelangAudioProcessor::LivecodelangAudioProcessor()
 : AudioProcessor (BusesProperties()
 #if ! JucePlugin_IsMidiEffect
 #if ! JucePlugin_IsSynth
-                  .withInput  ("Input",  AudioChannelSet::stereo(), false)
+                  .withInput  ("Input",  AudioChannelSet::mono(), false)
 #endif
                   .withOutput ("Output", AudioChannelSet::stereo(), true)
 #endif
