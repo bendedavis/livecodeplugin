@@ -44,8 +44,8 @@ ifeq ($(CONFIG),Debug)
   JUCE_TARGET_SHARED_CODE := livecodelang.a
 
   JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 $(CFLAGS)
-  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++14 $(CXXFLAGS)
-  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell pkg-config --libs alsa x11 xinerama xext freetype2 webkit2gtk-4.0 gtk+-x11-3.0 libcurl) -lrt -ldl -lpthread $(LDFLAGS)
+  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++17 $(CXXFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell pkg-config --libs alsa x11 xinerama xext freetype2 webkit2gtk-4.0 gtk+-x11-3.0 libcurl) -fvisibility=hidden -lrt -ldl -lpthread $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
@@ -69,7 +69,7 @@ ifeq ($(CONFIG),Release)
   JUCE_TARGET_SHARED_CODE := livecodelang.a
 
   JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -O3 $(CFLAGS)
-  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++14 $(CXXFLAGS)
+  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++17 $(CXXFLAGS)
   JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell pkg-config --libs alsa x11 xinerama xext freetype2 webkit2gtk-4.0 gtk+-x11-3.0 libcurl) -fvisibility=hidden -lrt -ldl -lpthread $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
@@ -83,6 +83,42 @@ OBJECTS_STANDALONE_PLUGIN := \
 OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/PluginProcessor_a059e380.o \
   $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
+  $(JUCE_OBJDIR)/lapi_b7f6bad7.o \
+  $(JUCE_OBJDIR)/lauxlib_36be7cae.o \
+  $(JUCE_OBJDIR)/lbaselib_37b2451.o \
+  $(JUCE_OBJDIR)/lbitlib_1d018005.o \
+  $(JUCE_OBJDIR)/lcode_4a3abc5a.o \
+  $(JUCE_OBJDIR)/lcorolib_223a4279.o \
+  $(JUCE_OBJDIR)/lctype_6d2c01a.o \
+  $(JUCE_OBJDIR)/ldblib_1c4754c4.o \
+  $(JUCE_OBJDIR)/ldebug_20de7ad0.o \
+  $(JUCE_OBJDIR)/ldo_81cf7978.o \
+  $(JUCE_OBJDIR)/ldump_4c4862a1.o \
+  $(JUCE_OBJDIR)/lfunc_4fb25771.o \
+  $(JUCE_OBJDIR)/lgc_81d0a989.o \
+  $(JUCE_OBJDIR)/linit_546c36bd.o \
+  $(JUCE_OBJDIR)/liolib_3af57d1c.o \
+  $(JUCE_OBJDIR)/llex_b88cf59c.o \
+  $(JUCE_OBJDIR)/lmathlib_9c70ae7a.o \
+  $(JUCE_OBJDIR)/lmem_b89ae3d2.o \
+  $(JUCE_OBJDIR)/loadlib_a0f16360.o \
+  $(JUCE_OBJDIR)/lobject_dfaf972c.o \
+  $(JUCE_OBJDIR)/lopcodes_6360dce2.o \
+  $(JUCE_OBJDIR)/loslib_7f2e431e.o \
+  $(JUCE_OBJDIR)/lparser_2117780c.o \
+  $(JUCE_OBJDIR)/lstate_53e6118e.o \
+  $(JUCE_OBJDIR)/lstring_4548677e.o \
+  $(JUCE_OBJDIR)/lstrlib_45705561.o \
+  $(JUCE_OBJDIR)/ltable_686aad8b.o \
+  $(JUCE_OBJDIR)/ltablib_a4ed927d.o \
+  $(JUCE_OBJDIR)/ltm_81d6b7e6.o \
+  $(JUCE_OBJDIR)/lua_81d6ff39.o \
+  $(JUCE_OBJDIR)/luac_b909a8d4.o \
+  $(JUCE_OBJDIR)/lundump_c06a4c7a.o \
+  $(JUCE_OBJDIR)/lutf8lib_bdca9fb1.o \
+  $(JUCE_OBJDIR)/lvm_81d7a0a4.o \
+  $(JUCE_OBJDIR)/lzio_b953ee5d.o \
+  $(JUCE_OBJDIR)/BinaryData_ce4232d4.o \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
   $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o \
   $(JUCE_OBJDIR)/include_juce_audio_formats_15f82001.o \
@@ -134,6 +170,186 @@ $(JUCE_OBJDIR)/PluginProcessor_a059e380.o: ../../Source/PluginProcessor.cpp
 $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o: ../../Source/PluginEditor.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling PluginEditor.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lapi_b7f6bad7.o: ../../Source/lua-src/lapi.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lapi.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lauxlib_36be7cae.o: ../../Source/lua-src/lauxlib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lauxlib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lbaselib_37b2451.o: ../../Source/lua-src/lbaselib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lbaselib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lbitlib_1d018005.o: ../../Source/lua-src/lbitlib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lbitlib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lcode_4a3abc5a.o: ../../Source/lua-src/lcode.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lcode.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lcorolib_223a4279.o: ../../Source/lua-src/lcorolib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lcorolib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lctype_6d2c01a.o: ../../Source/lua-src/lctype.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lctype.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ldblib_1c4754c4.o: ../../Source/lua-src/ldblib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ldblib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ldebug_20de7ad0.o: ../../Source/lua-src/ldebug.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ldebug.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ldo_81cf7978.o: ../../Source/lua-src/ldo.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ldo.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ldump_4c4862a1.o: ../../Source/lua-src/ldump.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ldump.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lfunc_4fb25771.o: ../../Source/lua-src/lfunc.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lfunc.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lgc_81d0a989.o: ../../Source/lua-src/lgc.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lgc.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/linit_546c36bd.o: ../../Source/lua-src/linit.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling linit.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/liolib_3af57d1c.o: ../../Source/lua-src/liolib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling liolib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/llex_b88cf59c.o: ../../Source/lua-src/llex.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling llex.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lmathlib_9c70ae7a.o: ../../Source/lua-src/lmathlib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lmathlib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lmem_b89ae3d2.o: ../../Source/lua-src/lmem.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lmem.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/loadlib_a0f16360.o: ../../Source/lua-src/loadlib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling loadlib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lobject_dfaf972c.o: ../../Source/lua-src/lobject.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lobject.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lopcodes_6360dce2.o: ../../Source/lua-src/lopcodes.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lopcodes.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/loslib_7f2e431e.o: ../../Source/lua-src/loslib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling loslib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lparser_2117780c.o: ../../Source/lua-src/lparser.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lparser.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lstate_53e6118e.o: ../../Source/lua-src/lstate.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lstate.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lstring_4548677e.o: ../../Source/lua-src/lstring.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lstring.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lstrlib_45705561.o: ../../Source/lua-src/lstrlib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lstrlib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ltable_686aad8b.o: ../../Source/lua-src/ltable.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ltable.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ltablib_a4ed927d.o: ../../Source/lua-src/ltablib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ltablib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ltm_81d6b7e6.o: ../../Source/lua-src/ltm.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ltm.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lua_81d6ff39.o: ../../Source/lua-src/lua.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lua.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/luac_b909a8d4.o: ../../Source/lua-src/luac.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling luac.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lundump_c06a4c7a.o: ../../Source/lua-src/lundump.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lundump.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lutf8lib_bdca9fb1.o: ../../Source/lua-src/lutf8lib.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lutf8lib.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lvm_81d7a0a4.o: ../../Source/lua-src/lvm.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lvm.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lzio_b953ee5d.o: ../../Source/lua-src/lzio.c
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling lzio.c"
+	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling BinaryData.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o: ../../JuceLibraryCode/include_juce_audio_basics.cpp
