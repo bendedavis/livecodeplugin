@@ -146,8 +146,22 @@ void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         startSample = currentPositionInfo.timeInSamples;
         transport = currentPositionInfo.isPlaying;
     }
+    
     for(int i=0;i<buffer.getNumSamples();i++)
     {
+        
+        lastTransport=currentTransport;
+        currentTransport=transport;
+        
+        if(currentTransport>lastTransport)
+        {
+            midiMessages.addEvent(MidiMessage::midiStart(), i);
+        }
+        else if(currentTransport<lastTransport)
+        {
+            midiMessages.addEvent(MidiMessage::midiStop(), i);
+        }
+        
         lastRunningTime=runningTime;
         if(playHead)
         {
@@ -163,6 +177,15 @@ void LivecodelangAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         currentCount = samplesToCount(runningTime, sampleRate, bpm);
         lastLoopedCount=loopedCount;
         loopedCount=wrap(currentCount,masterLength);
+        
+        lastClkCount=currentClkCount;
+        currentClkCount=wrap(currentCount,1/96.0f);
+        
+        if(currentClkCount<lastClkCount)
+        {
+            midiMessages.addEvent(MidiMessage::midiClock(), i);
+        }
+        
         if(loopedCount<lastLoopedCount)
         {
             if(queueNewClip)

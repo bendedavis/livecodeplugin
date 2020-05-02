@@ -229,7 +229,7 @@ public:
                                             finalNote=luaEval(quantizeMessage.c_str(),L);
                                             
                                         }
-                                        makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip[!clipSelect], masterLength);
+                                        makeNote(paramStor[i].midiChan, finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip[!clipSelect], masterLength);
                                     }
                                     else
                                     {
@@ -244,7 +244,7 @@ public:
                                                 finalNote=luaEval(quantizeMessage.c_str(),L);
                                                 
                                             }
-                                            makeNote(finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip[!clipSelect], masterLength);
+                                            makeNote(paramStor[i].midiChan, finalNote, finalVel , firstNote + eachTiming*rep, (1/16.0f)/channelTiming, myClip[!clipSelect], masterLength);
                                         }
                                     }
                                 }
@@ -291,7 +291,7 @@ private:
         delete []lowBuffer;
     }
     
-    inline void makeNote(float note, float velocity, float start, float duration, MidiMessageSequence &mySeq, int maxLength)
+    inline void makeNote(int midiChannel, float note, float velocity, float start, float duration, MidiMessageSequence &mySeq, int maxLength)
     {
         if(note>=0&&note<128)
         {
@@ -299,8 +299,8 @@ private:
                note = std::ceil(note);
             else
                note = std::floor(note);
-            auto onEvent = MidiMessage::noteOn(1, note, velocity);
-            auto offEvent = MidiMessage::noteOff(1, note, velocity);
+            auto onEvent = MidiMessage::noteOn(midiChannel, note, velocity);
+            auto offEvent = MidiMessage::noteOff(midiChannel, note, velocity);
             mySeq.addEvent(onEvent,start);
             auto endPosition = start+duration;
             if(endPosition<maxLength)
@@ -402,6 +402,10 @@ private:
         {
             paramStor[channelNum].scale=lowBuff[0];
         }
+        else if(commandName=="midi")
+        {
+            paramStor[channelNum].midiChan=std::stoi(lowBuff[0]);
+        }
     }
     
     double inline samplesToCount (int64_t sampleCount, double sr, double bpm)
@@ -413,14 +417,9 @@ private:
         return(beatCount);
     }
     
-    double wrap(double in, int mod)
+   double wrap(double in, float mod)
     {
-        double output=0;
-        int64_t wholeNum = in;
-        wholeNum%=mod;
-        double frac=in-(int64_t)in;
-        output=wholeNum+frac;
-        return (output);
+        return (std::fmod(in, mod));
     }
     
     class ParamStor
@@ -436,8 +435,10 @@ private:
         std::string divide;
         std::string shift;
         std::string scale;
+        int midiChan;
         void clear()
         {
+            midiChan = 1;
             prob = nullptr;
             gateLength=0;
             repeat=nullptr;
@@ -458,6 +459,13 @@ private:
     int64_t lastRunningTime;
     double lastCount;
     double currentCount;
+    
+    int currentTransport;
+    int lastTransport;
+    
+    double currentClkCount;
+    double lastClkCount;
+    
     uint16_t numEvents;
     double loopedCount;
     double lastLoopedCount;

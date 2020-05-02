@@ -60,6 +60,7 @@ private:
     int lastTransportState=1;
     
     LivecodelangAudioProcessor& processor;
+        
     TextButton* evalButton = new TextButton;
     TextButton* fileButton = new TextButton;
     TextEditor* textEd = new TextEditor;
