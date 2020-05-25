@@ -43,13 +43,6 @@ LivecodelangAudioProcessorEditor::LivecodelangAudioProcessorEditor (Livecodelang
     playButton->setButtonText("Play");
     UIHeight=600;
     UIWidth=800;
-#ifdef IOS_VERSION
-    Rectangle<int> r = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
-    int x = r.getWidth();
-    int y = r.getHeight();
-    UIHeight=y;
-    UIWidth=x;
-#endif
     setSize (UIWidth, UIHeight);
 }
 
@@ -102,13 +95,6 @@ void LivecodelangAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    #ifdef IOS_VERSION
-        Rectangle<int> r = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
-        int x = r.getWidth();
-        int y = r.getHeight();
-        UIHeight=y;
-        UIWidth=x;
-    #endif
         setSize (UIWidth, UIHeight);
     
 #define buttonHeight 30

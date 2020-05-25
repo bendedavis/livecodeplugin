@@ -53,8 +53,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     
-    int lastUIState;
-    int currentUIState;
+    int lastUIState=1;
+    int currentUIState=1;
     
     int currentTransportState=1;
     int lastTransportState=1;

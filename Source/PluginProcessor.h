@@ -469,7 +469,7 @@ private:
     uint16_t numEvents;
     double loopedCount;
     double lastLoopedCount;
-    uint16_t masterLength=1;
+    double masterLength=1;
     uint16_t eventsPlayed;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LivecodelangAudioProcessor)
