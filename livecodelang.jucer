@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="Dpd3LC" name="livecodelang" projectType="audioplug" jucerVersion="5.4.7"
-              pluginCharacteristicsValue="pluginEditorRequiresKeys,pluginProducesMidiOut,pluginWantsMidiIn"
+<JUCERPROJECT id="Dpd3LC" name="livecodelang" projectType="audioplug" pluginCharacteristicsValue="pluginEditorRequiresKeys,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginName="CodeSeq" pluginDesc="CodeSeq" pluginManufacturer="BenDavis.IO"
               aaxIdentifier="com.bendavisio.codeseq" companyName="bendavisIO"
               pluginFormats="buildAU,buildStandalone,buildVST3" pluginAUMainType="'aumi'"
-              defines="IOS_VERSION" cppLanguageStandard="latest">
+              defines="IOS_VERSION" cppLanguageStandard="latest" displaySplashScreen="1"
+              jucerFormatVersion="1">
   <MAINGROUP id="hvqGsp" name="livecodelang">
     <GROUP id="{8312D8B7-B293-F6AF-5053-3DB2787A4F9D}" name="Source">
       <FILE id="GjgBt5" name="PluginProcessor.cpp" compile="1" resource="0"
